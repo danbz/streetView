@@ -1,6 +1,7 @@
-# ofxStreetView
+# based on ofxStreetView
 
-Trying to improve the stitching between panoramic views for my [SKYLINES II project](http://patriciogonzalezvivo.com/2014/skylines/) I came across some encrypted depth information inside Google Street View database. This become popularized by the short video [PointCloudCity](http://patriciogonzalezvivo.com/2014/pointcloudcity/) and later become SKYLINE III, a series of postcards revealing the invisible information of a city that is otherwise trapped inside corporate databases, freeing private information collected from public spaces.
+forked from http://patriciogonzalezvivo.com 
+
 
 [ ![Washington Sq](https://farm6.staticflickr.com/5498/13923612140_0abfc6c758_b_d.jpg) ](http://patriciogonzalezvivo.com/2014/pointcloudcity/wash-sq/)
 
