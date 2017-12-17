@@ -5,7 +5,10 @@ void ofApp::setup(){
     ofSetVerticalSync(true);
     ofEnableDepthTest();
     
-    viewLat = 51.462088;
+//    viewLat = 50.7530769;//liege netherlands border post
+//    viewLong = 5.6960133;//liege netherlands border post
+    
+    viewLat = 51.462088;//stokes croft
     viewLong = -2.5901384;
     
     //streetview.setLatLon(40.75732,-73.985951);  // Time Sq
@@ -16,7 +19,7 @@ void ofApp::setup(){
     
    // streetview.setLatLon( 51.462088,-2.5901384 ); //stokes croft
    // streetview.setLatLon( 50.7530769,5.6964121 ); //liege netherlands border post
-     // streetview.setLatLon( 50.7531791,5.6960133 ); //liege netherlands border post  2
+    // streetview.setLatLon( 50.7531791,5.6960133 ); //liege netherlands border post  2
     
     
     streetview.setLatLon(viewLat, viewLong);
@@ -146,22 +149,22 @@ void ofApp::keyReleased(int key){
             break;
             
         case OF_KEY_UP:
-            viewLong -= 0.00020;
+            viewLat += 0.00020;
             streetview.setLatLon(viewLat, viewLong);
             break;
             
         case OF_KEY_DOWN:
-            viewLong += 0.00020;
+            viewLat -= 0.00020;
              streetview.setLatLon(viewLat, viewLong);
             break;
             
         case OF_KEY_LEFT:
-            viewLat -= 0.00020;
+            viewLong -= 0.00020;
             streetview.setLatLon(viewLat, viewLong);
             break;
             
         case OF_KEY_RIGHT:
-            viewLat += 0.00020;
+            viewLong += 0.00020;
             streetview.setLatLon(viewLat, viewLong);
             break;
             
