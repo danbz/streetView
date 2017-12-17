@@ -23,7 +23,8 @@ void ofApp::setup(){
     
     streetview.setZoom(3);
     
-    b_drawPointCloud, b_enableLight = false;
+    b_drawPointCloud = true;
+   b_enableLight = false;
     
      fileName = "streetmesh" + ofGetTimestampString() + ".obj";
     cout << fileName << endl;
@@ -40,7 +41,7 @@ void ofApp::update(){
     
     streetview.update();
     
-    //streetview.setUseTexture(false);
+    streetview.setUseTexture(true);
     
     mesh = streetview.getDethMesh();
 }
@@ -53,7 +54,10 @@ void ofApp::draw(){
     cam.begin();
     
     if (b_drawPointCloud) {
-    streetview.draw();
+        //streetview.setMode(OF_PRIMITIVE_POINTS);
+
+        ofSetColor( 255, 255, 255);
+        streetview.draw();
     } else {
     
     // db hack nov 2017
@@ -62,6 +66,8 @@ void ofApp::draw(){
     glPointSize(4);
     //glEnable(GL_POINT_SMOOTH); // use circular points instead of square points
     ofPushMatrix();
+        ofRotateZ(98); //correct alignment of meshes
+        
    // ofScale(1, -1, -1);  // the projected points are 'upside down' and 'backwards'
    // ofTranslate(0, 0, 0); // center the points a bit
     glEnable(GL_DEPTH_TEST);
@@ -82,7 +88,8 @@ void ofApp::draw(){
     
     ofSetColor(255, 255, 255);
     stringstream statusStream;
-    statusStream   << "lat: " << viewLat << " long: " << viewLong;
+    statusStream   << "lat: " << viewLat << " long: " << viewLong << " direction:  " << streetview.getDirection()
+    << streetview.getAddress() << ", " << streetview.getRegion() << ", " << streetview.getCountry();
     
     ofDrawBitmapString(statusStream.str(), 20,  20);
 
@@ -139,22 +146,22 @@ void ofApp::keyReleased(int key){
             break;
             
         case OF_KEY_UP:
-            viewLong += 0.00010;
+            viewLong -= 0.00020;
             streetview.setLatLon(viewLat, viewLong);
             break;
             
         case OF_KEY_DOWN:
-            viewLong -= 0.00010;
+            viewLong += 0.00020;
              streetview.setLatLon(viewLat, viewLong);
             break;
             
         case OF_KEY_LEFT:
-            viewLat -= 0.00010;
+            viewLat -= 0.00020;
             streetview.setLatLon(viewLat, viewLong);
             break;
             
         case OF_KEY_RIGHT:
-            viewLat += 0.00010;
+            viewLat += 0.00020;
             streetview.setLatLon(viewLat, viewLong);
             break;
             
