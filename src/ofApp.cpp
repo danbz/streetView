@@ -36,7 +36,8 @@ void ofApp::setup(){
     
     obj.open(ofToDataPath(fileName),ofFile::ReadWrite);
 
-   
+    b_updateMesh=false;
+    mesh = streetview.getDethMesh();
 }
 
 //--------------------------------------------------------------
@@ -45,8 +46,10 @@ void ofApp::update(){
     streetview.update();
     
     streetview.setUseTexture(true);
-    
-    mesh = streetview.getDethMesh();
+//    if (b_updateMesh) {
+//        mesh.append(streetview.getDethMesh());
+//        b_updateMesh= false;
+//    }
 }
 
 //--------------------------------------------------------------
@@ -59,8 +62,7 @@ void ofApp::draw(){
     if (b_drawPointCloud) {
         //streetview.setMode(OF_PRIMITIVE_POINTS);
 
-        ofSetColor( 255, 255, 255);
-        streetview.draw();
+       streetview.draw();
     } else {
     
     // db hack nov 2017
@@ -69,7 +71,7 @@ void ofApp::draw(){
     glPointSize(4);
     //glEnable(GL_POINT_SMOOTH); // use circular points instead of square points
     ofPushMatrix();
-        ofRotateZ(98); //correct alignment of meshes
+    ofRotateZ(98); //correct alignment of meshes
         
    // ofScale(1, -1, -1);  // the projected points are 'upside down' and 'backwards'
    // ofTranslate(0, 0, 0); // center the points a bit
@@ -151,21 +153,25 @@ void ofApp::keyReleased(int key){
         case OF_KEY_UP:
             viewLat += 0.00020;
             streetview.setLatLon(viewLat, viewLong);
+            b_updateMesh=true;
             break;
             
         case OF_KEY_DOWN:
             viewLat -= 0.00020;
              streetview.setLatLon(viewLat, viewLong);
+            b_updateMesh=true;
             break;
             
         case OF_KEY_LEFT:
             viewLong -= 0.00020;
             streetview.setLatLon(viewLat, viewLong);
+            b_updateMesh=true;
             break;
             
         case OF_KEY_RIGHT:
             viewLong += 0.00020;
             streetview.setLatLon(viewLat, viewLong);
+            b_updateMesh=true;
             break;
             
             

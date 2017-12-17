@@ -29,7 +29,7 @@ public:
     ofFile obj;
     void exportOBJ(ofMesh &mesh);
     void loadOBJ(ofMesh &mesh);
-    bool b_drawPointCloud, b_enableLight;
+    bool b_drawPointCloud, b_enableLight, b_updateMesh;
     string fileName;
     
     void processOpenFileSelection(ofFileDialogResult openFileResult);
