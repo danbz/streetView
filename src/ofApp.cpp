@@ -32,9 +32,9 @@ void ofApp::setup(){
      fileName = "streetmesh" + ofGetTimestampString() + ".obj";
     cout << fileName << endl;
 
-    //obj.open(ofToDataPath(fileName),ofFile::WriteOnly);
+    obj.open(ofToDataPath(fileName),ofFile::WriteOnly);
     
-    obj.open(ofToDataPath(fileName),ofFile::ReadWrite);
+   // obj.open(ofToDataPath(fileName),ofFile::ReadWrite);
 
     b_updateMesh=false;
     mesh = streetview.getDethMesh();
