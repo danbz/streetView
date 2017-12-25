@@ -8,10 +8,10 @@ void ofApp::setup(){
 //    viewLat = 50.7530769;//liege netherlands border post
 //    viewLong = 5.6960133;//liege netherlands border post
     
-    viewLat = 55.5893491;//stokes croft
-    viewLong = 12.6428642;
+    viewLat = 51.462088;//stokes croft
+    viewLong = -2.5901384;
     
-   //  55.5893621,12.6427111 dragor
+   //  55.5893491,12.6428642 dragor
     
     //streetview.setLatLon(40.75732,-73.985951);  // Time Sq
    //streetview.setLatLon(40.768153,-73.981473); // Columbus Circus
@@ -106,8 +106,8 @@ void ofApp::draw(){
     
     ofSetColor(255, 255, 255);
     stringstream statusStream;
-    statusStream   << "lat: " << viewLat << " long: " << viewLong << " direction:  " << streetview[0].getDirection()
-    << streetview[0].getAddress() << ", " << streetview[0].getRegion() << ", " << streetview[0].getCountry();
+    statusStream   << "original lat: " << viewLat << " long: " << viewLong << " direction:  " << streetview[0].getDirection()
+    << streetview[0].getAddress() << ", " << streetview[0].getRegion() << ", " << streetview[0].getCountry() << "number of meshes: " <<streetview.size() ;
     
     ofDrawBitmapString(statusStream.str(), 20,  20);
 
@@ -163,12 +163,20 @@ void ofApp::keyReleased(int key){
             }
             break;
             
-//        case OF_KEY_UP:
-//            viewLat += 0.00020;
-//            streetview.setLatLon(viewLat, viewLong);
-//            b_updateMesh=true;
-//            break;
-//            
+            
+            
+       case OF_KEY_UP:
+            
+            viewLat += 0.00020;
+            ofxStreetView newStreet;
+            streetview.push_back(newStreet);
+            int i =  streetview.size()-1;
+            streetview[i].setLatLon(viewLat, viewLong);
+            streetview[i].setZoom(3);
+           // streetview.setLatLon(viewLat, viewLong);
+            b_updateMesh=true;
+            break;
+//
 //        case OF_KEY_DOWN:
 //            viewLat -= 0.00020;
 //             streetview.setLatLon(viewLat, viewLong);
