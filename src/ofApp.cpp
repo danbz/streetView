@@ -42,6 +42,41 @@ void ofApp::setup(){
     b_updateMesh=false;
     mesh = streetview[0].getDethMesh();
     
+    
+    //gui setup
+    gui.setup(); // most of the time you don't need a name
+   // gui.add(filled.setup("fill", true));
+    string num;
+    for(int i = 0; i < 5; i++){
+        num = std::to_string(i);
+        gui.add(latOffset[i].setup("latOffset"+num, 0, -20, 20));
+        gui.add(longOffset[i].setup("longOffset"+num, 7.0, -20, 20));
+        gui.add(rotOffset[i].setup("Rotation offset"+num, -37, -180, 180));
+    }
+//    gui.add(latOffset[i].setup("latOffset", 0, -20, 20));
+//    gui.add(longOffset.setup("longOffset", 7.0, -20, 20));
+    //gui.add(center.setup("center", ofVec2f(ofGetWidth()*.5, ofGetHeight()*.5), ofVec2f(0, 0), ofVec2f(ofGetWidth(), ofGetHeight())));
+//    gui.add(color.setup("color", ofColor(100, 100, 140), ofColor(0, 0), ofColor(255, 255)));
+    
+    gui.add(pointSize.setup("pointSize", 2, 1, 10));
+
+//    gui.add(twoCircles.setup("two circles"));
+//    gui.add(ringButton.setup("ring"));
+//    gui.add(screenSize.setup("screen size", ofToString(ofGetWidth())+"x"+ofToString(ofGetHeight())));
+
+    b_showGui = true;
+    
+    // good values
+    latOffset[1] = -0.4;
+    longOffset[1] = -5.8;
+    rotOffset[1] = -37;
+    
+    latOffset[2] = -0.4;
+    longOffset[2] = -3.4;
+    rotOffset[2] = -154;
+    
+    
+    
 }
 
 //--------------------------------------------------------------
@@ -69,10 +104,11 @@ void ofApp::draw(){
     if (b_drawPointCloud) {
         // streetview.setMode(OF_PRIMITIVE_POINTS);
         ofPushMatrix();
+         glPointSize(pointSize);
         for(int i = 0; i < streetview.size(); i++){
             
-            ofRotateZ(streetview[i].getDirection());
-            ofTranslate(streetview[i].getLat(), streetview[i].getLon(), 0);
+            ofRotateZ(streetview[i].getDirection()+rotOffset[i]);
+            ofTranslate(streetview[i].getLon()*longOffset[i], streetview[i].getLat()*latOffset[i], 0);
             streetview[i].draw();
           
         }
@@ -111,6 +147,8 @@ void ofApp::draw(){
     << streetview[0].getAddress() << ", " << streetview[0].getRegion() << ", " << streetview[0].getCountry() << "number of meshes: " <<streetview.size() ;
     
     ofDrawBitmapString(statusStream.str(), 20,  20);
+    ofSetColor( 255, 255, 255);
+   if (b_showGui) gui.draw();
     
 }
 
@@ -143,6 +181,12 @@ void ofApp::keyReleased(int key){
         case 'S':
             exportOBJ(mesh);
             break;
+            
+        case 'g':
+        case 'G':
+            b_showGui=!b_showGui;
+            break;
+            
             
             
         case 'o':

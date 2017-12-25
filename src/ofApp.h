@@ -2,6 +2,7 @@
 
 #include "ofMain.h"
 #include "ofxStreetView.h"
+#include "ofxGui.h"
 
 class ofApp : public ofBaseApp{
 public:
@@ -39,15 +40,15 @@ public:
     
     
     //gui
-    ofxFloatSlider radius;
+    ofxFloatSlider latOffset[10], longOffset[10];
     //ofxColorSlider color;
     //ofxVec2Slider center;
-    ofxIntSlider circleResolution;
+    ofxIntSlider rotOffset[10], pointSize;
     ofxToggle filled;
     //ofxButton twoCircles;
     //ofxButton ringButton;
     //ofxLabel screenSize;
-    
+    bool b_showGui;
     ofxPanel gui;
     
 };
