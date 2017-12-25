@@ -36,4 +36,18 @@ public:
     ofFileDialogResult openFileResult;
     
     double viewLat, viewLong;
+    
+    
+    //gui
+    ofxFloatSlider radius;
+    //ofxColorSlider color;
+    //ofxVec2Slider center;
+    ofxIntSlider circleResolution;
+    ofxToggle filled;
+    //ofxButton twoCircles;
+    //ofxButton ringButton;
+    //ofxLabel screenSize;
+    
+    ofxPanel gui;
+    
 };
