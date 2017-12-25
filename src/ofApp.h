@@ -21,7 +21,7 @@ public:
     
     ofEasyCam cam;
     
-    ofxStreetView streetview;
+   vector <ofxStreetView> streetview;
     
     //db hack nov 2017
     ofLight worldLight;

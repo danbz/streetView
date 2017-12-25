@@ -8,8 +8,10 @@ void ofApp::setup(){
 //    viewLat = 50.7530769;//liege netherlands border post
 //    viewLong = 5.6960133;//liege netherlands border post
     
-    viewLat = 51.462088;//stokes croft
-    viewLong = -2.5901384;
+    viewLat = 55.5893491;//stokes croft
+    viewLong = 12.6428642;
+    
+   //  55.5893621,12.6427111 dragor
     
     //streetview.setLatLon(40.75732,-73.985951);  // Time Sq
    //streetview.setLatLon(40.768153,-73.981473); // Columbus Circus
@@ -21,10 +23,11 @@ void ofApp::setup(){
    // streetview.setLatLon( 50.7530769,5.6964121 ); //liege netherlands border post
     // streetview.setLatLon( 50.7531791,5.6960133 ); //liege netherlands border post  2
     
+    ofxStreetView newStreet;
+    streetview.push_back(newStreet);
+    streetview[0].setLatLon(viewLat, viewLong);
+    streetview[0].setZoom(3);
     
-    streetview.setLatLon(viewLat, viewLong);
-    
-    streetview.setZoom(3);
     
     b_drawPointCloud = true;
    b_enableLight = false;
@@ -37,15 +40,22 @@ void ofApp::setup(){
    // obj.open(ofToDataPath(fileName),ofFile::ReadWrite);
 
     b_updateMesh=false;
-    mesh = streetview.getDethMesh();
+    mesh = streetview[0].getDethMesh();
 }
 
 //--------------------------------------------------------------
 void ofApp::update(){
+    // iterate through vector of streetview objects
     
-    streetview.update();
+    for(int i = 0; i < streetview.size(); i++){
+        streetview[i].update();
+        streetview[i].setUseTexture(true);
+       // cout << "streetview" << i << "lat: " << streetview[i].getLat() << endl;
+
+    }
     
-    streetview.setUseTexture(true);
+   // streetview.update();
+    
 //    if (b_updateMesh) {
 //        mesh.append(streetview.getDethMesh());
 //        b_updateMesh= false;
@@ -60,9 +70,12 @@ void ofApp::draw(){
     cam.begin();
     
     if (b_drawPointCloud) {
-        //streetview.setMode(OF_PRIMITIVE_POINTS);
-
-       streetview.draw();
+       // streetview.setMode(OF_PRIMITIVE_POINTS);
+        for(int i = 0; i < streetview.size(); i++){
+            
+            streetview[i].draw();
+        }
+       
     } else {
     
     // db hack nov 2017
@@ -93,8 +106,8 @@ void ofApp::draw(){
     
     ofSetColor(255, 255, 255);
     stringstream statusStream;
-    statusStream   << "lat: " << viewLat << " long: " << viewLong << " direction:  " << streetview.getDirection()
-    << streetview.getAddress() << ", " << streetview.getRegion() << ", " << streetview.getCountry();
+    statusStream   << "lat: " << viewLat << " long: " << viewLong << " direction:  " << streetview[0].getDirection()
+    << streetview[0].getAddress() << ", " << streetview[0].getRegion() << ", " << streetview[0].getCountry();
     
     ofDrawBitmapString(statusStream.str(), 20,  20);
 
@@ -150,30 +163,30 @@ void ofApp::keyReleased(int key){
             }
             break;
             
-        case OF_KEY_UP:
-            viewLat += 0.00020;
-            streetview.setLatLon(viewLat, viewLong);
-            b_updateMesh=true;
-            break;
-            
-        case OF_KEY_DOWN:
-            viewLat -= 0.00020;
-             streetview.setLatLon(viewLat, viewLong);
-            b_updateMesh=true;
-            break;
-            
-        case OF_KEY_LEFT:
-            viewLong -= 0.00020;
-            streetview.setLatLon(viewLat, viewLong);
-            b_updateMesh=true;
-            break;
-            
-        case OF_KEY_RIGHT:
-            viewLong += 0.00020;
-            streetview.setLatLon(viewLat, viewLong);
-            b_updateMesh=true;
-            break;
-            
+//        case OF_KEY_UP:
+//            viewLat += 0.00020;
+//            streetview.setLatLon(viewLat, viewLong);
+//            b_updateMesh=true;
+//            break;
+//            
+//        case OF_KEY_DOWN:
+//            viewLat -= 0.00020;
+//             streetview.setLatLon(viewLat, viewLong);
+//            b_updateMesh=true;
+//            break;
+//            
+//        case OF_KEY_LEFT:
+//            viewLong -= 0.00020;
+//            streetview.setLatLon(viewLat, viewLong);
+//            b_updateMesh=true;
+//            break;
+//            
+//        case OF_KEY_RIGHT:
+//            viewLong += 0.00020;
+//            streetview.setLatLon(viewLat, viewLong);
+//            b_updateMesh=true;
+//            break;
+//            
             
     }
     
