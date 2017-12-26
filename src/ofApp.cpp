@@ -47,7 +47,7 @@ void ofApp::setup(){
     gui.setup(); // most of the time you don't need a name
    // gui.add(filled.setup("fill", true));
     string num;
-    for(int i = 0; i < 5; i++){
+    for(int i = 0; i < 10; i++){
         num = std::to_string(i);
         gui.add(latOffset[i].setup("latOffset"+num, 0, -20, 20));
         gui.add(longOffset[i].setup("longOffset"+num, 7.0, -20, 20));
@@ -66,14 +66,34 @@ void ofApp::setup(){
 
     b_showGui = true;
     
-    // good values
+    // good values for stokes croft first 5 going north from junction with city road
+    latOffset[0] = -0;
+    longOffset[0] = 7;
+    rotOffset[0] = -37;
+    
     latOffset[1] = -0.4;
     longOffset[1] = -5.8;
     rotOffset[1] = -37;
     
     latOffset[2] = -0.4;
     longOffset[2] = -3.4;
-    rotOffset[2] = -154;
+    rotOffset[2] = 154;
+    
+    latOffset[3] = 0.200001;
+    longOffset[3] = -10.6;
+    rotOffset[3] = -97;
+    
+    latOffset[4] = 0.200001;
+    longOffset[4] = 3;
+    rotOffset[4] = 91;
+    
+    latOffset[5] = 0.599998;
+    longOffset[5] = 1.6;
+    rotOffset[5] = -149;
+    
+    latOffset[6] = 0;
+    longOffset[6] = 8.6;
+    rotOffset[6] = 120;
     
     
     
