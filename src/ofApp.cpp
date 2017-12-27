@@ -267,6 +267,16 @@ void ofApp::keyReleased(int key){
 //-----------------
 void ofApp::exportOBJ(ofMesh &mesh){
     
+    mesh.clear();
+    for(int i = 0; i < streetview.size(); i++){ //build new mesh to export
+        
+        ofRotateZ(streetview[i].getDirection()+rotOffset[i]);
+        ofTranslate(streetview[i].getLon()*longOffset[i], streetview[i].getLat()*latOffset[i], 0);
+        streetview[i].getTexture().bind();
+        mesh.append(streetview[i].getDethMesh());
+        streetview[i].getTexture().unbind();
+    }
+    
     //obj.open(ofToDataPath(name),ofFile::WriteOnly);
     obj << "#vertices\n";
     
