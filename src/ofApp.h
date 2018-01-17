@@ -3,6 +3,8 @@
 #include "ofMain.h"
 #include "ofxStreetView.h"
 #include "ofxGui.h"
+#include "ofxGeo.h"
+
 
 class ofApp : public ofBaseApp{
 public:
@@ -50,5 +52,20 @@ public:
     //ofxLabel screenSize;
     bool b_showGui;
     ofxPanel gui;
+    
+    
+    /// geo
+    
+    ofxGeo::Coordinate london;
+    ofxGeo::Coordinate tokyo;
+    
+    double distanceSpherical = 0;
+    double distanceHaversine = 0;
+    double bearingHaversine = 0;
+    
+    ofxGeo::Coordinate midpoint;
+
+    
+    
     
 };

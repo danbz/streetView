@@ -11,7 +11,22 @@ void ofApp::setup(){
     viewLat = 51.462088;//stokes croft
     viewLong = -2.5901384;
     
+    viewLat = 22.2040435; //lo shing beach, lamma island, hong kong 
+    viewLong = 114.1228474;
+    
+    
+    viewLat = 22.2738285; //tai lung fung
+    viewLong = 114.1742357;
+    
+    viewLat = 22.3290091; //sham sui po
+    viewLong = 114.1600577;
+    
+    
+    
+    // tai lung fung 22.2738285,114.1742357
+    
     //  55.5893491,12.6428642 dragor
+    // 22.2040435,114.1228474 lo shing beach, lamma island, hong kong
     
     //streetview.setLatLon(40.75732,-73.985951);  // Time Sq
     //streetview.setLatLon(40.768153,-73.981473); // Columbus Circus
@@ -68,8 +83,8 @@ void ofApp::setup(){
     
     // good values for stokes croft first 5 going north from junction with city road
     latOffset[0] = -0;
-    longOffset[0] = 7;
-    rotOffset[0] = -37;
+    longOffset[0] = 0;
+    rotOffset[0] = 0;
     
     latOffset[1] = -0.4;
     longOffset[1] = -5.8;
@@ -112,6 +127,17 @@ void ofApp::update(){
     //        mesh.append(streetview.getDethMesh());
     //        b_updateMesh= false;
     //    }
+    
+    // geo calc need to add into vector creation in loading new meshes...
+    // plus add in new code for mesh transforms and appending on export...
+    
+    london = ofxGeo::Coordinate(51.5085300, -0.1257400);
+    tokyo = ofxGeo::Coordinate(35.6148800, 139.5813000);
+    
+    distanceSpherical = ofxGeo::Utils::distanceSpherical(london, tokyo);
+    distanceHaversine = ofxGeo::Utils::distanceHaversine(london, tokyo);
+    bearingHaversine = ofxGeo::Utils::bearingHaversine(london, tokyo);
+    midpoint = ofxGeo::Utils::midpoint(london, tokyo);
 }
 
 //--------------------------------------------------------------

@@ -1,3 +1,4 @@
+ofxGeo
 ofxGui
 ofxStreetView
 ofxXmlSettings
