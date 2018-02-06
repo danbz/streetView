@@ -11,28 +11,24 @@ void ofApp::setup(){
     viewLat = 51.462088;//stokes croft
     viewLong = -2.5901384;
     
-//    viewLat = 22.2040435; //lo shing beach, lamma island, hong kong 
-//    viewLong = 114.1228474;
-//    
-//    
-//    viewLat = 22.2738285; //tai lung fung
-//    viewLong = 114.1742357;
-//    
-//    viewLat = 22.3290091; //sham sui po
-//    viewLong = 114.1600577;
+    //    viewLat = 22.2040435; //lo shing beach, lamma island, hong kong
+    //    viewLong = 114.1228474;
+    //
+    //    viewLat = 22.2738285; //tai lung fung
+    //    viewLong = 114.1742357;
+    //
+    //    viewLat = 22.3290091; //sham sui po
+    //    viewLong = 114.1600577;
     
-    //viewLat = 51.5130679;
-   // viewLong =-0.228804; // RCA white city
+    // viewLat = 51.5130679;
+    // viewLong =-0.228804; // RCA white city
     
-    viewLat = 50.3621444;
-    viewLong =-4.7448747;
-    //50.3621444,-4.7448747, //EDEN PROJECT
-  
-    
+    // viewLat = 50.3621444;
+    // viewLong =-4.7448747; //EDEN PROJECT
     
     // tai lung fung 22.2738285,114.1742357
     
-    //  55.5893491,12.6428642 dragor
+    // 55.5893491,12.6428642 dragor
     // 22.2040435,114.1228474 lo shing beach, lamma island, hong kong
     
     //streetview.setLatLon(40.75732,-73.985951);  // Time Sq
@@ -64,10 +60,7 @@ void ofApp::setup(){
     b_updateMesh=false;
     mesh = streetview[0].getDethMesh();
     
-    
-    //gui setup
-    gui.setup(); // most of the time you don't need a name
-   // gui.add(filled.setup("fill", true));
+    gui.setup();
     string num;
     for(int i = 0; i < 10; i++){
         num = std::to_string(i);
@@ -75,17 +68,17 @@ void ofApp::setup(){
         gui.add(longOffset[i].setup("longOffset"+num, 7.0, -20, 20));
         gui.add(rotOffset[i].setup("Rotation offset"+num, -37, -180, 180));
     }
-//    gui.add(latOffset[i].setup("latOffset", 0, -20, 20));
-//    gui.add(longOffset.setup("longOffset", 7.0, -20, 20));
-    //gui.add(center.setup("center", ofVec2f(ofGetWidth()*.5, ofGetHeight()*.5), ofVec2f(0, 0), ofVec2f(ofGetWidth(), ofGetHeight())));
-//    gui.add(color.setup("color", ofColor(100, 100, 140), ofColor(0, 0), ofColor(255, 255)));
+    //    gui.add(latOffset[i].setup("latOffset", 0, -20, 20));
+    //    gui.add(longOffset.setup("longOffset", 7.0, -20, 20));
+    //  gui.add(center.setup("center", ofVec2f(ofGetWidth()*.5, ofGetHeight()*.5), ofVec2f(0, 0), ofVec2f(ofGetWidth(), ofGetHeight())));
+    //    gui.add(color.setup("color", ofColor(100, 100, 140), ofColor(0, 0), ofColor(255, 255)));
     
     gui.add(pointSize.setup("pointSize", 2, 1, 10));
-
-//    gui.add(twoCircles.setup("two circles"));
-//    gui.add(ringButton.setup("ring"));
-//    gui.add(screenSize.setup("screen size", ofToString(ofGetWidth())+"x"+ofToString(ofGetHeight())));
-
+    
+    //    gui.add(twoCircles.setup("two circles"));
+    //    gui.add(ringButton.setup("ring"));
+    //    gui.add(screenSize.setup("screen size", ofToString(ofGetWidth())+"x"+ofToString(ofGetHeight())));
+    
     b_showGui = true;
     
     // good values for stokes croft first 5 going north from junction with city road
@@ -117,14 +110,11 @@ void ofApp::setup(){
     longOffset[6] = 8.6;
     rotOffset[6] = 120;
     
-    
-    
 }
 
 //--------------------------------------------------------------
 void ofApp::update(){
     // iterate through vector of streetview objects
-    
     for(int i = 0; i < streetview.size(); i++){
         streetview[i].update();
         streetview[i].setUseTexture(true);
@@ -135,37 +125,44 @@ void ofApp::update(){
     //        b_updateMesh= false;
     //    }
     
-    // geo calc need to add into vector creation in loading new meshes...
-    // plus add in new code for mesh transforms and appending on export...
-    
-    london = ofxGeo::Coordinate(51.5085300, -0.1257400);
-    tokyo = ofxGeo::Coordinate(35.6148800, 139.5813000);
-    
-    distanceSpherical = ofxGeo::Utils::distanceSpherical(london, tokyo);
-    distanceHaversine = ofxGeo::Utils::distanceHaversine(london, tokyo);
-    bearingHaversine = ofxGeo::Utils::bearingHaversine(london, tokyo);
-    midpoint = ofxGeo::Utils::midpoint(london, tokyo);
-}
+    }
 
 //--------------------------------------------------------------
 void ofApp::draw(){
     ofBackground(0);
+    
+     stringstream statusStream, statusStream2;
     
     if (b_enableLight) worldLight.enable();
     cam.begin();
     
     if (b_drawPointCloud) {
         // streetview.setMode(OF_PRIMITIVE_POINTS);
-        ofPushMatrix();
-         glPointSize(pointSize);
+       
+        glPointSize(pointSize);
+        home = ofxGeo::Coordinate(streetview[0].getLat(), streetview[0].getLon());
+
         for(int i = 0; i < streetview.size(); i++){
+             ofPushMatrix();
             
-            ofRotateZ(streetview[i].getDirection()+rotOffset[i]);
-            ofTranslate(streetview[i].getLon()*longOffset[i], streetview[i].getLat()*latOffset[i], 0);
+            //int a =  streetview.size()-1;
+            
+            newLocation = ofxGeo::Coordinate(streetview[i].getLat(), streetview[i].getLon());
+            
+            //distanceSpherical = ofxGeo::Utils::distanceSpherical(home, newLocation);
+            distanceHaversine = ofxGeo::Utils::distanceHaversine(home, newLocation);
+            bearingHaversine = ofxGeo::Utils::bearingHaversine(home, newLocation);
+            //midpoint = ofxGeo::Utils::midpoint(home, newLocation);
+            ofRotateZ(bearingHaversine);
+            ofTranslate(distanceHaversine *1000, 0, 0);
             streetview[i].draw();
-          
+            
+           
+
+            statusStream2 << "calculating home to mesh " << i <<" bearingHaversine: " << bearingHaversine<< " distanceHaversine: " << distanceHaversine ;
+            ofPopMatrix();
         }
-          ofPopMatrix();
+       
     } else {
         
         // db hack nov 2017
@@ -195,15 +192,41 @@ void ofApp::draw(){
     
     
     ofSetColor(255, 255, 255);
-    stringstream statusStream;
-    statusStream   << "original lat: " << viewLat << " long: " << viewLong << " direction:  " << streetview[0].getDirection()
+    
+    statusStream << streetview[0].getPanoId() << " lat: " << viewLat << " long: " << viewLong << " direction:  " << streetview[0].getDirection()
     << streetview[0].getAddress() << ", " << streetview[0].getRegion() << ", " << streetview[0].getCountry() << "number of meshes: " <<streetview.size() ;
     
     ofDrawBitmapString(statusStream.str(), 20,  20);
+    ofDrawBitmapString(statusStream2.str(), 20,  40);
     ofSetColor( 255, 255, 255);
-   if (b_showGui) gui.draw();
+    if (b_showGui) gui.draw();
     
 }
+
+// geocalc
+
+void ofApp::calculateVector() {
+    
+    // geo calc need to add into vector creation in loading new meshes...
+    // plus add in new code for mesh transforms and appending on export...
+    
+    home = ofxGeo::Coordinate(streetview[0].getLat(), streetview[0].getLon());
+    
+    int i =  streetview.size()-1;
+    
+    newLocation = ofxGeo::Coordinate(streetview[i].getLat(), streetview[i].getLon());
+    
+    distanceSpherical = ofxGeo::Utils::distanceSpherical(home, newLocation);
+    distanceHaversine = ofxGeo::Utils::distanceHaversine(home, newLocation);
+    bearingHaversine = ofxGeo::Utils::bearingHaversine(home, newLocation);
+    midpoint = ofxGeo::Utils::midpoint(home, newLocation);
+    string closeLink = streetview[i].getCloseLinkTo(0) ;
+    string thisLink = streetview[0].getPanoId();
+    cout << "calculating home to mesh " << i <<" distanceSpherical: " << distanceSpherical<< " distanceHaversine: " << distanceHaversine << " bearingHaversine: " << bearingHaversine << " this link: " << thisLink << " closest link: "<< closeLink << endl;
+}
+
+
+
 
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key){
@@ -212,13 +235,14 @@ void ofApp::keyPressed(int key){
 
 //--------------------------------------------------------------
 void ofApp::keyReleased(int key){
+    
+  
     switch (key) {
             
         case 'p':
         case 'P':
             b_drawPointCloud =!b_drawPointCloud;
             break;
-            
             
         case 'f':
         case 'F':
@@ -227,7 +251,9 @@ void ofApp::keyReleased(int key){
             
         case 'l':
         case 'L':
-            b_enableLight = !b_enableLight;
+            //b_enableLight = !b_enableLight;
+            calculateVector();
+          
             break;
             
         case 's':
@@ -240,18 +266,13 @@ void ofApp::keyReleased(int key){
             b_showGui=!b_showGui;
             break;
             
-            
-            
         case 'o':
         case 'O':
             //Open the Open File Dialog
             openFileResult= ofSystemLoadDialog("Select an obj file");
-            
             //Check if the user opened a file
             if (openFileResult.bSuccess){
-                
                 ofLogVerbose("User selected a file");
-                
                 //We have a file, check it and process it
                 processOpenFileSelection(openFileResult);
             }
@@ -260,41 +281,45 @@ void ofApp::keyReleased(int key){
             }
             break;
             
-            
-            
         case OF_KEY_UP:
-            
-            viewLat += 0.00020;
-            ofxStreetView newStreet;
-            streetview.push_back(newStreet);
-            int i =  streetview.size()-1;
-            streetview[i].setLatLon(viewLat, viewLong);
-            streetview[i].setZoom(3);
-            // streetview.setLatLon(viewLat, viewLong);
-            b_updateMesh=true;
+            loadNewStreet(0);
             break;
             
-            //        case OF_KEY_DOWN:
-            //            viewLat -= 0.00020;
-            //             streetview.setLatLon(viewLat, viewLong);
-            //            b_updateMesh=true;
-            //            break;
-            //
-            //        case OF_KEY_LEFT:
-            //            viewLong -= 0.00020;
-            //            streetview.setLatLon(viewLat, viewLong);
-            //            b_updateMesh=true;
-            //            break;
-            //
-            //        case OF_KEY_RIGHT:
-            //            viewLong += 0.00020;
-            //            streetview.setLatLon(viewLat, viewLong);
-            //            b_updateMesh=true;
-            //            break;
-            //
+        case OF_KEY_DOWN:
+            loadNewStreet(180);
+            break;
             
+        case OF_KEY_LEFT:
+            loadNewStreet(90);
+            break;
+            
+        case OF_KEY_RIGHT:
+            loadNewStreet(270);
+            break;
     }
+}
+
+//-----------------
+
+void ofApp::loadNewStreet(int direction){
+    string newPanoName;
+    int i;
+    ofxStreetView newStreet;
+    newPanoName = streetview[i-1].getCloseLinkTo(direction);
     
+    while (i < streetview.size()) {
+        if (newPanoName == streetview[i].getPanoId()) {
+            cout << "pano is already loaded" << endl;
+            ofSystemAlertDialog("pano is already loaded");
+            return;
+        }
+        i++;
+    }
+    streetview.push_back(newStreet);
+    i = streetview.size()-1;
+    streetview[i].setPanoId(newPanoName);
+    streetview[i].setZoom(3);
+    b_updateMesh=true;
 }
 
 //-----------------
@@ -444,6 +469,6 @@ void ofApp::gotMessage(ofMessage msg){
 }
 
 //--------------------------------------------------------------
-void ofApp::dragEvent(ofDragInfo dragInfo){ 
+void ofApp::dragEvent(ofDragInfo dragInfo){
     
 }

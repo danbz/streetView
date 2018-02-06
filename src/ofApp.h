@@ -36,6 +36,9 @@ public:
     string fileName;
     
     void processOpenFileSelection(ofFileDialogResult openFileResult);
+    void calculateVector();
+    void loadNewStreet( int degrees);
+    
     ofFileDialogResult openFileResult;
     
     double viewLat, viewLong;
@@ -56,8 +59,8 @@ public:
     
     /// geo
     
-    ofxGeo::Coordinate london;
-    ofxGeo::Coordinate tokyo;
+    ofxGeo::Coordinate home;
+    ofxGeo::Coordinate newLocation;
     
     double distanceSpherical = 0;
     double distanceHaversine = 0;
