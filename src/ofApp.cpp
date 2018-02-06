@@ -11,32 +11,28 @@ void ofApp::setup(){
     viewLat = 51.462088;//stokes croft
     viewLong = -2.5901384;
     
-    //    viewLat = 22.2040435; //lo shing beach, lamma island, hong kong
-    //    viewLong = 114.1228474;
+    // viewLat = 22.2040435; // lo shing beach, lamma island, hong kong
+    // viewLong = 114.1228474;
     //
-    //    viewLat = 22.2738285; //tai lung fung
-    //    viewLong = 114.1742357;
+    // viewLat = 22.2738285; // tai lung fung
+    // viewLong = 114.1742357;
     //
-    //    viewLat = 22.3290091; //sham sui po
-    //    viewLong = 114.1600577;
+    // viewLat = 22.3290091; // sham sui po
+    // viewLong = 114.1600577;
     
     // viewLat = 51.5130679;
     // viewLong =-0.228804; // RCA white city
     
-    // viewLat = 50.3621444;
-    // viewLong =-4.7448747; //EDEN PROJECT
-    
-    // tai lung fung 22.2738285,114.1742357
+    // viewLat = 50.3621444; //EDEN PROJECT
+    // viewLong =-4.7448747;
     
     // 55.5893491,12.6428642 dragor
     // 22.2040435,114.1228474 lo shing beach, lamma island, hong kong
     
-    //streetview.setLatLon(40.75732,-73.985951);  // Time Sq
-    //streetview.setLatLon(40.768153,-73.981473); // Columbus Circus
+    // streetview.setLatLon(40.75732,-73.985951);  // Time Sq
+    // streetview.setLatLon(40.768153,-73.981473); // Columbus Circus
     // streetview.setLatLon(40.751511,-73.993953);  // Penn Station
-    
-    //streetview.setLatLon(22.276499,114.1735439); // wanchai MTR hong kong;
-    
+    // streetview.setLatLon(22.276499,114.1735439); // wanchai MTR Hong Kong;
     // streetview.setLatLon( 51.462088,-2.5901384 ); //stokes croft
     // streetview.setLatLon( 50.7530769,5.6964121 ); //liege netherlands border post
     // streetview.setLatLon( 50.7531791,5.6960133 ); //liege netherlands border post  2
@@ -45,7 +41,6 @@ void ofApp::setup(){
     streetview.push_back(newStreet);
     streetview[0].setLatLon(viewLat, viewLong);
     streetview[0].setZoom(3);
-    
     
     b_drawPointCloud = true;
     b_enableLight = false;
@@ -131,40 +126,34 @@ void ofApp::update(){
 void ofApp::draw(){
     ofBackground(0);
     
-     stringstream statusStream, statusStream2;
+    stringstream statusStream, statusStream2;
     
     if (b_enableLight) worldLight.enable();
     cam.begin();
     
     if (b_drawPointCloud) {
         // streetview.setMode(OF_PRIMITIVE_POINTS);
-       
+        
         glPointSize(pointSize);
         home = ofxGeo::Coordinate(streetview[0].getLat(), streetview[0].getLon());
-
+        
         for(int i = 0; i < streetview.size(); i++){
-             ofPushMatrix();
-            
-            //int a =  streetview.size()-1;
+            ofPushMatrix();
             
             newLocation = ofxGeo::Coordinate(streetview[i].getLat(), streetview[i].getLon());
             
-            //distanceSpherical = ofxGeo::Utils::distanceSpherical(home, newLocation);
+            // distanceSpherical = ofxGeo::Utils::distanceSpherical(home, newLocation);
             distanceHaversine = ofxGeo::Utils::distanceHaversine(home, newLocation);
             bearingHaversine = ofxGeo::Utils::bearingHaversine(home, newLocation);
-            //midpoint = ofxGeo::Utils::midpoint(home, newLocation);
-           // ofRotateZ(bearingHaversine);
-            //ofTranslate(distanceHaversine *1000, 0, 0);
+            // midpoint = ofxGeo::Utils::midpoint(home, newLocation);
+             ofRotateZ(bearingHaversine );
+             ofTranslate(0, distanceHaversine *1000 , 0);
             streetview[i].draw();
             
-        
-            statusStream2 << "calculating home to mesh " << i <<" bearingHaversine: " << bearingHaversine<< " distanceHaversine: " << distanceHaversine ;
+            statusStream2 << " home to mesh " << i <<" bearing: " << bearingHaversine<< " distance: " << distanceHaversine *1000;
             ofPopMatrix();
         }
-       
     } else {
-        
-        // db hack nov 2017
         mesh.setMode(OF_PRIMITIVE_POINTS);
         
         glPointSize(4);
@@ -191,14 +180,12 @@ void ofApp::draw(){
     
     ofSetColor(255, 255, 255);
     
-    statusStream << streetview[0].getPanoId() << " lat: " << viewLat << " long: " << viewLong << " direction:  " << streetview[0].getDirection()
-    << streetview[0].getAddress() << ", " << streetview[0].getRegion() << ", " << streetview[0].getCountry() << "meshes: " <<streetview.size() ;
+    statusStream << streetview[0].getPanoId() << " lat: " << viewLat << " long: " << viewLong << " direction:  " << streetview[0].getDirection() << streetview[0].getAddress() << ", " << streetview[0].getRegion() << "meshes: " <<streetview.size() << " linkLevel: " << linkLevel;
     
     ofDrawBitmapString(statusStream.str(), 20,  20);
     ofDrawBitmapString(statusStream2.str(), 20,  40);
     ofSetColor( 255, 255, 255);
     if (b_showGui) gui.draw();
-    
 }
 
 //--------
@@ -206,7 +193,7 @@ void ofApp::draw(){
 void ofApp::loadLinks(){
     //load next level of related links from the central start streetview
     
-    int numOfLinks, i, n;
+    int numOfLinks, i, n, a;
     string newPanoName;
     ofxStreetView newStreet;
     
@@ -215,30 +202,33 @@ void ofApp::loadLinks(){
     //    streetview[i].update();
     //    streetview[i].setUseTexture(true);
     // }
-    
-    numOfLinks = streetview[linkLevel].links.size(); //get number of links related to a loaded panormama
-    cout << numOfLinks << " number of links related to streetview Pano number " << linkLevel << endl;
-    if (numOfLinks>0) {
-        for (n=0; n<numOfLinks; n++) {
-            
-            //iterate through links adding them
-            newPanoName = streetview[linkLevel].links[n].pano_id;
-            cout << newPanoName << " = new pano name, number " << n+1 << " of " << numOfLinks << endl;
-            
-            while (i < streetview.size()) { // check if pano already loaded
-                if (newPanoName == streetview[i].getPanoId()) {
-                    cout << "pano is already loaded" << endl;
-                    ofSystemAlertDialog("pano is already loaded");
-                    return;
+    int loopStart = linkLevel;
+    int loopEnd = streetview.size();
+    for (a = loopStart; a < loopEnd; a++) { // loop though non link-read panoramas
+        numOfLinks = streetview[linkLevel].links.size(); //get number of links related to a loaded panormama
+        cout << numOfLinks << " number of links related to streetview Pano number " << linkLevel << endl;
+        if (numOfLinks>0) {
+            for (n=0; n<numOfLinks; n++) {
+                //iterate through links adding them
+                newPanoName = streetview[linkLevel].links[n].pano_id;
+                cout << newPanoName << " = new pano name, number " << n+1 << " of " << numOfLinks << endl;
+                
+                while (i < streetview.size()) { // check if pano already loaded
+                    if (newPanoName == streetview[i].getPanoId()) {
+                        cout << "pano is already loaded" << endl;
+                        ofSystemAlertDialog("pano is already loaded");
+                        break;
+                    }
+                    i++;
                 }
-                i++;
+                streetview.push_back(newStreet);
+                int numOfPanos = streetview.size()-1;
+                streetview[i].setPanoId(newPanoName);
+                streetview[i].setZoom(3);
+                b_updateMesh=true;
             }
-            streetview.push_back(newStreet);
-            int numOfPanos = streetview.size()-1;
-            streetview[i].setPanoId(newPanoName);
-            streetview[i].setZoom(3);
-            b_updateMesh=true;
         }
+        
     }
     linkLevel ++;
 }
@@ -261,7 +251,7 @@ void ofApp::calculateVector() {
     midpoint = ofxGeo::Utils::midpoint(home, newLocation);
     string closeLink = streetview[i].getCloseLinkTo(0) ;
     string thisLink = streetview[0].getPanoId();
-    cout << "calculating home to mesh " << i <<" distanceSpherical: " << distanceSpherical<< " distanceHaversine: " << distanceHaversine << " bearingHaversine: " << bearingHaversine << " this link: " << thisLink << " closest link: "<< closeLink << endl;
+    cout <<  "home to mesh " << i << " distanceHaversine: " << distanceHaversine << " bearing: " << bearingHaversine << " this link: " << thisLink << " closest link: "<< closeLink << endl;
 }
 
 
