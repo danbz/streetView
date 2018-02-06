@@ -49,6 +49,9 @@ void ofApp::setup(){
     
     b_drawPointCloud = true;
     b_enableLight = false;
+    b_updateMesh=false;
+    b_showGui = true;
+    linkLevel =0;
     
     fileName = "streetmesh" + ofGetTimestampString() + ".obj";
     cout << fileName << endl;
@@ -57,7 +60,6 @@ void ofApp::setup(){
     
     // obj.open(ofToDataPath(fileName),ofFile::ReadWrite);
     
-    b_updateMesh=false;
     mesh = streetview[0].getDethMesh();
     
     gui.setup();
@@ -78,8 +80,6 @@ void ofApp::setup(){
     //    gui.add(twoCircles.setup("two circles"));
     //    gui.add(ringButton.setup("ring"));
     //    gui.add(screenSize.setup("screen size", ofToString(ofGetWidth())+"x"+ofToString(ofGetHeight())));
-    
-    b_showGui = true;
     
     // good values for stokes croft first 5 going north from junction with city road
     latOffset[0] = -0;
@@ -153,12 +153,11 @@ void ofApp::draw(){
             distanceHaversine = ofxGeo::Utils::distanceHaversine(home, newLocation);
             bearingHaversine = ofxGeo::Utils::bearingHaversine(home, newLocation);
             //midpoint = ofxGeo::Utils::midpoint(home, newLocation);
-            ofRotateZ(bearingHaversine);
-            ofTranslate(distanceHaversine *1000, 0, 0);
+           // ofRotateZ(bearingHaversine);
+            //ofTranslate(distanceHaversine *1000, 0, 0);
             streetview[i].draw();
             
-           
-
+        
             statusStream2 << "calculating home to mesh " << i <<" bearingHaversine: " << bearingHaversine<< " distanceHaversine: " << distanceHaversine ;
             ofPopMatrix();
         }
@@ -190,11 +189,10 @@ void ofApp::draw(){
     cam.end();
     worldLight.disable();
     
-    
     ofSetColor(255, 255, 255);
     
     statusStream << streetview[0].getPanoId() << " lat: " << viewLat << " long: " << viewLong << " direction:  " << streetview[0].getDirection()
-    << streetview[0].getAddress() << ", " << streetview[0].getRegion() << ", " << streetview[0].getCountry() << "number of meshes: " <<streetview.size() ;
+    << streetview[0].getAddress() << ", " << streetview[0].getRegion() << ", " << streetview[0].getCountry() << "meshes: " <<streetview.size() ;
     
     ofDrawBitmapString(statusStream.str(), 20,  20);
     ofDrawBitmapString(statusStream2.str(), 20,  40);
@@ -203,8 +201,49 @@ void ofApp::draw(){
     
 }
 
-// geocalc
+//--------
 
+void ofApp::loadLinks(){
+    //load next level of related links from the central start streetview
+    
+    int numOfLinks, i, n;
+    string newPanoName;
+    ofxStreetView newStreet;
+    
+    i = 0;
+    // for(int i = 0; i < streetview.size(); i++){
+    //    streetview[i].update();
+    //    streetview[i].setUseTexture(true);
+    // }
+    
+    numOfLinks = streetview[linkLevel].links.size(); //get number of links related to a loaded panormama
+    cout << numOfLinks << " number of links related to streetview Pano number " << linkLevel << endl;
+    if (numOfLinks>0) {
+        for (n=0; n<numOfLinks; n++) {
+            
+            //iterate through links adding them
+            newPanoName = streetview[linkLevel].links[n].pano_id;
+            cout << newPanoName << " = new pano name, number " << n+1 << " of " << numOfLinks << endl;
+            
+            while (i < streetview.size()) { // check if pano already loaded
+                if (newPanoName == streetview[i].getPanoId()) {
+                    cout << "pano is already loaded" << endl;
+                    ofSystemAlertDialog("pano is already loaded");
+                    return;
+                }
+                i++;
+            }
+            streetview.push_back(newStreet);
+            int numOfPanos = streetview.size()-1;
+            streetview[i].setPanoId(newPanoName);
+            streetview[i].setZoom(3);
+            b_updateMesh=true;
+        }
+    }
+    linkLevel ++;
+}
+
+//-----------
 void ofApp::calculateVector() {
     
     // geo calc need to add into vector creation in loading new meshes...
@@ -296,6 +335,12 @@ void ofApp::keyReleased(int key){
         case OF_KEY_RIGHT:
             loadNewStreet(270);
             break;
+            
+        case '+':
+        case '=':
+            loadLinks();
+            break;
+            
     }
 }
 

@@ -22,27 +22,14 @@ public:
     void dragEvent(ofDragInfo dragInfo);
     void gotMessage(ofMessage msg);
     
-    ofEasyCam cam;
-    
-   vector <ofxStreetView> streetview;
     
     //db hack nov 2017
-    ofLight worldLight;
-    ofMesh mesh;
-    ofFile obj;
     void exportOBJ(ofMesh &mesh);
     void loadOBJ(ofMesh &mesh);
-    bool b_drawPointCloud, b_enableLight, b_updateMesh;
-    string fileName;
-    
     void processOpenFileSelection(ofFileDialogResult openFileResult);
     void calculateVector();
     void loadNewStreet( int degrees);
-    
-    ofFileDialogResult openFileResult;
-    
-    double viewLat, viewLong;
-    
+    void loadLinks();
     
     //gui
     ofxFloatSlider latOffset[10], longOffset[10];
@@ -53,18 +40,25 @@ public:
     //ofxButton twoCircles;
     //ofxButton ringButton;
     //ofxLabel screenSize;
-    bool b_showGui;
     ofxPanel gui;
-    
-    
-    /// geo
     
     ofxGeo::Coordinate home;
     ofxGeo::Coordinate newLocation;
+    ofLight worldLight;
+    ofMesh mesh;
+    ofFile obj;
+    ofEasyCam cam;
+    
+    vector <ofxStreetView> streetview;
+    ofFileDialogResult openFileResult;
     
     double distanceSpherical = 0;
     double distanceHaversine = 0;
     double bearingHaversine = 0;
+    double viewLat, viewLong;
+    bool b_drawPointCloud, b_enableLight, b_updateMesh, b_showGui;;
+    string fileName;
+    int linkLevel;
     
     ofxGeo::Coordinate midpoint;
 
