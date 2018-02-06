@@ -11,16 +11,23 @@ void ofApp::setup(){
     viewLat = 51.462088;//stokes croft
     viewLong = -2.5901384;
     
-    viewLat = 22.2040435; //lo shing beach, lamma island, hong kong 
-    viewLong = 114.1228474;
+//    viewLat = 22.2040435; //lo shing beach, lamma island, hong kong 
+//    viewLong = 114.1228474;
+//    
+//    
+//    viewLat = 22.2738285; //tai lung fung
+//    viewLong = 114.1742357;
+//    
+//    viewLat = 22.3290091; //sham sui po
+//    viewLong = 114.1600577;
     
+    //viewLat = 51.5130679;
+   // viewLong =-0.228804; // RCA white city
     
-    viewLat = 22.2738285; //tai lung fung
-    viewLong = 114.1742357;
-    
-    viewLat = 22.3290091; //sham sui po
-    viewLong = 114.1600577;
-    
+    viewLat = 50.3621444;
+    viewLong =-4.7448747;
+    //50.3621444,-4.7448747, //EDEN PROJECT
+  
     
     
     // tai lung fung 22.2738285,114.1742357
