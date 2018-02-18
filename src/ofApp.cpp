@@ -1,9 +1,14 @@
 #include "ofApp.h"
+#include <fstream>
+
+#include <iostream>
 
 //--------------------------------------------------------------
 void ofApp::setup(){
     ofSetVerticalSync(true);
     ofEnableDepthTest();
+    
+    
     
     //    viewLat = 50.7530769;//liege netherlands border post
     //    viewLong = 5.6960133;//liege netherlands border post
@@ -51,30 +56,22 @@ void ofApp::setup(){
     fileName = "streetmesh" + ofGetTimestampString() + ".obj";
     cout << fileName << endl;
     
-    obj.open(ofToDataPath(fileName),ofFile::WriteOnly);
-    
+   // obj.open(ofToDataPath(fileName),ofFile::WriteOnly);
     // obj.open(ofToDataPath(fileName),ofFile::ReadWrite);
-    
     mesh = streetview[0].getDethMesh();
     
     gui.setup();
     string num;
     for(int i = 0; i < 10; i++){
         num = std::to_string(i);
-        gui.add(latOffset[i].setup("latOffset"+num, 0, -20, 20));
-        gui.add(longOffset[i].setup("longOffset"+num, 7.0, -20, 20));
-        gui.add(rotOffset[i].setup("Rotation offset"+num, -37, -180, 180));
+        gui.add(showMesh[i].setup("showMesh "+num,1));
+        //gui.add(latOffset[i].setup("latOffset"+num, 0, -20, 20));
+        //gui.add(longOffset[i].setup("longOffset"+num, 7.0, -20, 20));
+        //gui.add(rotOffset[i].setup("Rotation offset"+num, -37, -180, 180));
     }
-    //    gui.add(latOffset[i].setup("latOffset", 0, -20, 20));
-    //    gui.add(longOffset.setup("longOffset", 7.0, -20, 20));
-    //  gui.add(center.setup("center", ofVec2f(ofGetWidth()*.5, ofGetHeight()*.5), ofVec2f(0, 0), ofVec2f(ofGetWidth(), ofGetHeight())));
-    //    gui.add(color.setup("color", ofColor(100, 100, 140), ofColor(0, 0), ofColor(255, 255)));
-    
+
     gui.add(pointSize.setup("pointSize", 2, 1, 10));
-    
-    //    gui.add(twoCircles.setup("two circles"));
-    //    gui.add(ringButton.setup("ring"));
-    //    gui.add(screenSize.setup("screen size", ofToString(ofGetWidth())+"x"+ofToString(ofGetHeight())));
+    gui.add(scaleMeters.setup("scaleMeters", 1000, 800, 1400));
     
     // good values for stokes croft first 5 going north from junction with city road
     latOffset[0] = -0;
@@ -104,7 +101,6 @@ void ofApp::setup(){
     latOffset[6] = 0;
     longOffset[6] = 8.6;
     rotOffset[6] = 120;
-    
 }
 
 //--------------------------------------------------------------
@@ -133,25 +129,34 @@ void ofApp::draw(){
     
     if (b_drawPointCloud) {
         // streetview.setMode(OF_PRIMITIVE_POINTS);
-        
         glPointSize(pointSize);
         home = ofxGeo::Coordinate(streetview[0].getLat(), streetview[0].getLon());
+       
+        ofRotateZ(streetview[0].getDirection());
+        if (showMesh[0]) streetview[0].draw();
         
-        for(int i = 0; i < streetview.size(); i++){
-            ofPushMatrix();
-            
-            newLocation = ofxGeo::Coordinate(streetview[i].getLat(), streetview[i].getLon());
-            
-            // distanceSpherical = ofxGeo::Utils::distanceSpherical(home, newLocation);
-            distanceHaversine = ofxGeo::Utils::distanceHaversine(home, newLocation);
-            bearingHaversine = ofxGeo::Utils::bearingHaversine(home, newLocation);
-            // midpoint = ofxGeo::Utils::midpoint(home, newLocation);
-             ofRotateZ(bearingHaversine );
-             ofTranslate(0, distanceHaversine *1000 , 0);
-            streetview[i].draw();
-            
-            statusStream2 << " home to mesh " << i <<" bearing: " << bearingHaversine<< " distance: " << distanceHaversine *1000;
-            ofPopMatrix();
+        if (streetview.size()>1 ){
+            for(int i = 1; i < streetview.size(); i++){
+                ofPushMatrix();
+                
+                newLocation = ofxGeo::Coordinate(streetview[i].getLat(), streetview[i].getLon());
+                distanceHaversine = ofxGeo::Utils::distanceHaversine(home, newLocation);
+                bearingHaversine = ofxGeo::Utils::bearingHaversine(home, newLocation);
+                // cout << "newLocation " << newLocation << " dist " << distanceHaversine << " bearing " << bearingHaversine << endl;
+
+
+                
+                ofRotateZ(bearingHaversine ); // rotate & translate lat long centre of pano
+                ofTranslate(0, -distanceHaversine * scaleMeters, 0); // translate
+                ofRotateZ(streetview[i].getDirection()); // rotate to align pano shot direction
+
+                ofRotateZ(-bearingHaversine ); // rotate back
+                
+
+                if (showMesh[i]) streetview[i].draw();
+                statusStream2 << " home to mesh " << i <<" bearing: " << bearingHaversine<< " distance: " << distanceHaversine *1000;
+                ofPopMatrix();
+            }
         }
     } else {
         mesh.setMode(OF_PRIMITIVE_POINTS);
@@ -198,18 +203,13 @@ void ofApp::loadLinks(){
     ofxStreetView newStreet;
     
     i = 0;
-    // for(int i = 0; i < streetview.size(); i++){
-    //    streetview[i].update();
-    //    streetview[i].setUseTexture(true);
-    // }
     int loopStart = linkLevel;
     int loopEnd = streetview.size();
     for (a = loopStart; a < loopEnd; a++) { // loop though non link-read panoramas
         numOfLinks = streetview[linkLevel].links.size(); //get number of links related to a loaded panormama
         cout << numOfLinks << " number of links related to streetview Pano number " << linkLevel << endl;
         if (numOfLinks>0) {
-            for (n=0; n<numOfLinks; n++) {
-                //iterate through links adding them
+            for (n=0; n<numOfLinks; n++) { //iterate through links adding them
                 newPanoName = streetview[linkLevel].links[n].pano_id;
                 cout << newPanoName << " = new pano name, number " << n+1 << " of " << numOfLinks << endl;
                 
@@ -228,7 +228,6 @@ void ofApp::loadLinks(){
                 b_updateMesh=true;
             }
         }
-        
     }
     linkLevel ++;
 }
@@ -254,87 +253,7 @@ void ofApp::calculateVector() {
     cout <<  "home to mesh " << i << " distanceHaversine: " << distanceHaversine << " bearing: " << bearingHaversine << " this link: " << thisLink << " closest link: "<< closeLink << endl;
 }
 
-
-
-
 //--------------------------------------------------------------
-void ofApp::keyPressed(int key){
-    
-}
-
-//--------------------------------------------------------------
-void ofApp::keyReleased(int key){
-    
-  
-    switch (key) {
-            
-        case 'p':
-        case 'P':
-            b_drawPointCloud =!b_drawPointCloud;
-            break;
-            
-        case 'f':
-        case 'F':
-            ofToggleFullscreen();
-            break;
-            
-        case 'l':
-        case 'L':
-            //b_enableLight = !b_enableLight;
-            calculateVector();
-          
-            break;
-            
-        case 's':
-        case 'S':
-            exportOBJ(mesh);
-            break;
-            
-        case 'g':
-        case 'G':
-            b_showGui=!b_showGui;
-            break;
-            
-        case 'o':
-        case 'O':
-            //Open the Open File Dialog
-            openFileResult= ofSystemLoadDialog("Select an obj file");
-            //Check if the user opened a file
-            if (openFileResult.bSuccess){
-                ofLogVerbose("User selected a file");
-                //We have a file, check it and process it
-                processOpenFileSelection(openFileResult);
-            }
-            else {
-                ofLogVerbose("User hit cancel");
-            }
-            break;
-            
-        case OF_KEY_UP:
-            loadNewStreet(0);
-            break;
-            
-        case OF_KEY_DOWN:
-            loadNewStreet(180);
-            break;
-            
-        case OF_KEY_LEFT:
-            loadNewStreet(90);
-            break;
-            
-        case OF_KEY_RIGHT:
-            loadNewStreet(270);
-            break;
-            
-        case '+':
-        case '=':
-            loadLinks();
-            break;
-            
-    }
-}
-
-//-----------------
 
 void ofApp::loadNewStreet(int direction){
     string newPanoName;
@@ -357,14 +276,15 @@ void ofApp::loadNewStreet(int direction){
     b_updateMesh=true;
 }
 
-//-----------------
+//--------------------------------------------------------------
+
 void ofApp::exportOBJ(ofMesh &mesh){
     
     mesh.clear();
     for(int i = 0; i < streetview.size(); i++){ //build new mesh to export
         
-        ofRotateZ(streetview[i].getDirection()+rotOffset[i]);
-        ofTranslate(streetview[i].getLon()*longOffset[i], streetview[i].getLat()*latOffset[i], 0);
+       // ofRotateZ(streetview[i].getDirection()+rotOffset[i]);
+       // ofTranslate(streetview[i].getLon()*longOffset[i], streetview[i].getLat()*latOffset[i], 0);
         streetview[i].getTexture().bind();
         mesh.append(streetview[i].getDethMesh());
         streetview[i].getTexture().unbind();
@@ -383,6 +303,60 @@ void ofApp::exportOBJ(ofMesh &mesh){
     obj << "\n";
     obj.close();
     cout << "wrote obj file"  << endl;
+}
+
+//---------------------------------------------------------------
+
+void ofApp::exportPLY( ofMesh &mesh){
+    ofFileDialogResult saveFileResult = ofSystemSaveDialog(ofGetTimestampString() + ".ply", "Export your mesh as a.ply file");
+    if (saveFileResult.bSuccess){
+        //volcaMeshMaker.makeMesh(filteredDepthImage, filteredColorImage, mesh, volca, volcaRenderer);
+        
+        mesh = streetview[0].getDethMesh();
+        
+        
+        // color the depth map from the pano texture
+        // ofTexture texture = panoFbo.getTexture();
+        // ofPixels pixels;
+        
+        // texture.readToPixels(pixels);
+        // c = pixels.getColor(x,y);
+        // meshDepth.addColor(c);
+        
+        
+        mesh.save(saveFileResult.filePath);
+    }
+
+}
+
+//--------------------------------------------------------------
+
+void ofApp::saveCacheFiles(){
+    ofBuffer cacheBuffer;
+    string panoId;
+    
+    ofSetDataPathRoot("../../../data/");
+
+    
+    
+    for(int i=0; i< streetview.size(); i++){
+        panoId = streetview[i].getPanoId();
+        fileName = "smCache_" + panoId + ".data";
+        
+        ofstream output_file(fileName, ios::binary);
+        //output_file.write("hello", 100);
+        output_file.write((char *)&streetview[i], sizeof(streetview[i]));
+        output_file.close();
+        
+        //obj.open(ofToDataPath(fileName),ofFile::WriteOnly);
+        
+        // cacheBuffer.set((char*)streetview, sizeof(streetview));
+        // cacheBuffer.set(streetview[1], sizeof(streetview[i]);
+        // obj.writeFromBuffer(cacheBuffer);
+        //obj.close();
+        
+        cout << "write cache file" << endl;
+    }
 }
 
 //--------------------------------------------------------------
@@ -472,6 +446,91 @@ void ofApp::processOpenFileSelection(ofFileDialogResult openFileResult){
     }
     
 }
+
+
+//--------------------------------------------------------------
+void ofApp::keyPressed(int key){
+    
+}
+
+//--------------------------------------------------------------
+void ofApp::keyReleased(int key){
+    
+    
+    switch (key) {
+            
+        case 'p':
+        case 'P':
+            b_drawPointCloud =!b_drawPointCloud;
+            break;
+            
+        case 'f':
+        case 'F':
+            ofToggleFullscreen();
+            break;
+            
+        case 'l':
+        case 'L':
+            //b_enableLight = !b_enableLight;
+            calculateVector();
+            
+            break;
+            
+        case 's':
+        case 'S':
+            //exportOBJ(mesh);
+            saveCacheFiles();
+            break;
+            
+        case 'e':
+        case 'E':
+            exportPLY(mesh);
+            break;
+            
+        case 'g':
+        case 'G':
+            b_showGui=!b_showGui;
+            break;
+            
+        case 'o':
+        case 'O':
+            //Open the Open File Dialog
+            openFileResult= ofSystemLoadDialog("Select an obj file");
+            //Check if the user opened a file
+            if (openFileResult.bSuccess){
+                ofLogVerbose("User selected a file");
+                //We have a file, check it and process it
+                processOpenFileSelection(openFileResult);
+            }
+            else {
+                ofLogVerbose("User hit cancel");
+            }
+            break;
+            
+        case OF_KEY_UP:
+            loadNewStreet(0);
+            break;
+            
+        case OF_KEY_DOWN:
+            loadNewStreet(180);
+            break;
+            
+        case OF_KEY_LEFT:
+            loadNewStreet(90);
+            break;
+            
+        case OF_KEY_RIGHT:
+            loadNewStreet(270);
+            break;
+            
+        case '+':
+        case '=':
+            loadLinks();
+            break;
+            
+    }
+}
+
 //--------------------------------------------------------------
 
 void ofApp::mouseMoved(int x, int y){

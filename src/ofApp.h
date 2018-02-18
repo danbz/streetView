@@ -6,6 +6,7 @@
 #include "ofxGeo.h"
 
 
+
 class ofApp : public ofBaseApp{
 public:
     void setup();
@@ -20,26 +21,23 @@ public:
     void mouseReleased(int x, int y, int button);
     void windowResized(int w, int h);
     void dragEvent(ofDragInfo dragInfo);
-    void gotMessage(ofMessage msg);
-    
+    void gotMessage(ofMessage msg);    
     
     //db hack nov 2017
     void exportOBJ(ofMesh &mesh);
+    void exportPLY(ofMesh &mesh);
+
     void loadOBJ(ofMesh &mesh);
     void processOpenFileSelection(ofFileDialogResult openFileResult);
     void calculateVector();
     void loadNewStreet( int degrees);
     void loadLinks();
-    
+    void saveCacheFiles();
     //gui
-    ofxFloatSlider latOffset[10], longOffset[10];
-    //ofxColorSlider color;
-    //ofxVec2Slider center;
+    ofxFloatSlider latOffset[10], longOffset[10], scaleMeters;
     ofxIntSlider rotOffset[10], pointSize;
     ofxToggle filled;
-    //ofxButton twoCircles;
-    //ofxButton ringButton;
-    //ofxLabel screenSize;
+    ofxToggle showMesh[10];
     ofxPanel gui;
     
     ofxGeo::Coordinate home;
@@ -61,8 +59,5 @@ public:
     int linkLevel;
     
     ofxGeo::Coordinate midpoint;
-
-    
-    
     
 };
