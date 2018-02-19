@@ -34,10 +34,10 @@ public:
     void loadLinks();
     void saveCacheFiles();
     //gui
-    ofxFloatSlider latOffset[10], longOffset[10], scaleMeters;
-    ofxIntSlider rotOffset[10], pointSize;
+    ofxFloatSlider latOffset[20], longOffset[20], scaleMeters;
+    ofxIntSlider rotOffset[20], pointSize;
     ofxToggle filled;
-    ofxToggle showMesh[10];
+    ofxToggle showMesh[20];
     ofxPanel gui;
     
     ofxGeo::Coordinate home;
@@ -57,7 +57,7 @@ public:
     bool b_drawPointCloud, b_enableLight, b_updateMesh, b_showGui;;
     string fileName;
     int linkLevel;
-    
+    double pie;
     ofxGeo::Coordinate midpoint;
     
 };

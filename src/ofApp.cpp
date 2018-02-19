@@ -8,11 +8,10 @@ void ofApp::setup(){
     ofSetVerticalSync(true);
     ofEnableDepthTest();
     
-    
-    
     //    viewLat = 50.7530769;//liege netherlands border post
     //    viewLong = 5.6960133;//liege netherlands border post
     
+    pie = 3.14159265358979323846;
     viewLat = 51.462088;//stokes croft
     viewLong = -2.5901384;
     
@@ -62,16 +61,16 @@ void ofApp::setup(){
     
     gui.setup();
     string num;
-    for(int i = 0; i < 10; i++){
+    for(int i = 0; i < 20; i++){
         num = std::to_string(i);
         gui.add(showMesh[i].setup("showMesh "+num,1));
         //gui.add(latOffset[i].setup("latOffset"+num, 0, -20, 20));
         //gui.add(longOffset[i].setup("longOffset"+num, 7.0, -20, 20));
-        //gui.add(rotOffset[i].setup("Rotation offset"+num, -37, -180, 180));
+        gui.add(rotOffset[i].setup("Rotation offset"+num, 0, -180, 180));
     }
 
     gui.add(pointSize.setup("pointSize", 2, 1, 10));
-    gui.add(scaleMeters.setup("scaleMeters", 1000, 800, 1400));
+    gui.add(scaleMeters.setup("scaleMeters", 20000.0, 1000.0, 500000.0));
     
     // good values for stokes croft first 5 going north from junction with city road
     latOffset[0] = -0;
@@ -124,40 +123,59 @@ void ofApp::draw(){
     
     stringstream statusStream, statusStream2;
     
+    int mapSize =3000;
     if (b_enableLight) worldLight.enable();
     cam.begin();
+    ofDrawAxis(100);
+    ofDrawRotationAxes(1);
     
+   // double doubleScale = scaleMeters;
     if (b_drawPointCloud) {
-        // streetview.setMode(OF_PRIMITIVE_POINTS);
         glPointSize(pointSize);
-        home = ofxGeo::Coordinate(streetview[0].getLat(), streetview[0].getLon());
-       
-        ofRotateZ(streetview[0].getDirection());
-        if (showMesh[0]) streetview[0].draw();
         
-        if (streetview.size()>1 ){
-            for(int i = 1; i < streetview.size(); i++){
-                ofPushMatrix();
-                
-                newLocation = ofxGeo::Coordinate(streetview[i].getLat(), streetview[i].getLon());
-                distanceHaversine = ofxGeo::Utils::distanceHaversine(home, newLocation);
-                bearingHaversine = ofxGeo::Utils::bearingHaversine(home, newLocation);
-                // cout << "newLocation " << newLocation << " dist " << distanceHaversine << " bearing " << bearingHaversine << endl;
+        //int homeXOffset = (streetview[0].getLon() * 20037508.34)/180;
+        //int homeYOffset = log(tan((90 + streetview[0].getLat()) * (pie/360) ))/ (pie/180) * (20037508.34/180);
+        home = ofxGeo::Coordinate(streetview[0].getLat(), streetview[0].getLon());
+        
 
+        
+            for(int i = 0; i < streetview.size(); i++){
+                if ( streetview[i].bDataLoaded & streetview[i].bPanoLoaded) {
+                    
+                    ofPushMatrix();
 
-                
-                ofRotateZ(bearingHaversine ); // rotate & translate lat long centre of pano
-                ofTranslate(0, -distanceHaversine * scaleMeters, 0); // translate
-                ofRotateZ(streetview[i].getDirection()); // rotate to align pano shot direction
+                    double latOffset = streetview[0].getLat()- streetview[i].getLat();
+                    double longOffset = streetview[0].getLon()- streetview[i].getLon();
+                    
 
-                ofRotateZ(-bearingHaversine ); // rotate back
-                
+                    // cout << latOffset << " lat:long offset " << longOffset << endl;
+                    // cout << "mesh " << i << " lat long pixel displacement " << latOffset << "," << longOffset << endl;
+                    
+                    // cavallo version
+                    // Data: Latitute and longitude of a location
+                    // Result: [x,z] offset from the center of the scene
+                    // int xoffset = (streetview[i].getLon() * 20037508.34)/180 - homeXOffset;
+                    // int zoffset = log(tan((90 + streetview[i].getLat()) * (pie/360) ))/ (pie/180) * (20037508.34/180) - homeYOffset;
+                    // end cavallo
+                    
+                    //ofTranslate( - longOffset * scaleMeters /2 , - latOffset * scaleMeters);
+                    newLocation = ofxGeo::Coordinate(streetview[i].getLat(), streetview[i].getLon());
 
-                if (showMesh[i]) streetview[i].draw();
-                statusStream2 << " home to mesh " << i <<" bearing: " << bearingHaversine<< " distance: " << distanceHaversine *1000;
-                ofPopMatrix();
-            }
+                    distanceHaversine = ofxGeo::Utils::distanceHaversine(home, newLocation);
+                    bearingHaversine = ofxGeo::Utils::bearingHaversine(home, newLocation);
+                    
+                    //if  (i > 0 ) ofRotateZ( streetview[i].getDirection()); // rotate to align pano shot direction
+
+                    //ofRotateZ(98); //correct alignment of meshes
+                    ofRotateZ(rotOffset[i]);
+
+                    if (showMesh[i]) streetview[i].draw();
+                    ofPopMatrix();
+
+                    statusStream2 << "mesh " << i << " dist " << distanceHaversine << "m, bear " << bearingHaversine << ", rot " << home << " " << newLocation <<endl;
+                }
         }
+        
     } else {
         mesh.setMode(OF_PRIMITIVE_POINTS);
         
@@ -165,7 +183,6 @@ void ofApp::draw(){
         //glEnable(GL_POINT_SMOOTH); // use circular points instead of square points
         ofPushMatrix();
         ofRotateZ(98); //correct alignment of meshes
-        
         // ofScale(1, -1, -1);  // the projected points are 'upside down' and 'backwards'
         // ofTranslate(0, 0, 0); // center the points a bit
         glEnable(GL_DEPTH_TEST);
@@ -185,22 +202,24 @@ void ofApp::draw(){
     
     ofSetColor(255, 255, 255);
     
-    statusStream << streetview[0].getPanoId() << " lat: " << viewLat << " long: " << viewLong << " direction:  " << streetview[0].getDirection() << streetview[0].getAddress() << ", " << streetview[0].getRegion() << "meshes: " <<streetview.size() << " linkLevel: " << linkLevel;
-    
-    ofDrawBitmapString(statusStream.str(), 20,  20);
-    ofDrawBitmapString(statusStream2.str(), 20,  40);
-    ofSetColor( 255, 255, 255);
-    if (b_showGui) gui.draw();
+    statusStream << streetview[0].getPanoId() << " lat " << viewLat << " lon " << viewLong << " dir " << streetview[0].getDirection() << streetview[0].getAddress() << ", " << streetview[0].getRegion() << "meshes " <<streetview.size() << " linkLvl " << linkLevel;
+    if (b_showGui) {
+        ofDrawBitmapString(statusStream.str(), 20,  20);
+        ofDrawBitmapString(statusStream2.str(), 20,  40);
+        gui.draw();
+    }
 }
 
 //--------
 
+
+
 void ofApp::loadLinks(){
     //load next level of related links from the central start streetview
-    
     int numOfLinks, i, n, a;
     string newPanoName;
-    ofxStreetView newStreet;
+    bool b_panoExists=false;
+    
     
     i = 0;
     int loopStart = linkLevel;
@@ -211,21 +230,25 @@ void ofApp::loadLinks(){
         if (numOfLinks>0) {
             for (n=0; n<numOfLinks; n++) { //iterate through links adding them
                 newPanoName = streetview[linkLevel].links[n].pano_id;
+                b_panoExists = false;
                 cout << newPanoName << " = new pano name, number " << n+1 << " of " << numOfLinks << endl;
-                
                 while (i < streetview.size()) { // check if pano already loaded
                     if (newPanoName == streetview[i].getPanoId()) {
-                        cout << "pano is already loaded" << endl;
-                        ofSystemAlertDialog("pano is already loaded");
+                        b_panoExists = true;
                         break;
                     }
                     i++;
                 }
-                streetview.push_back(newStreet);
-                int numOfPanos = streetview.size()-1;
-                streetview[i].setPanoId(newPanoName);
-                streetview[i].setZoom(3);
-                b_updateMesh=true;
+                if (!b_panoExists){
+                    cout << " adding pano " << newPanoName << endl;
+                    ofxStreetView newStreet;
+                    streetview.push_back(newStreet);
+                    streetview[i].setPanoId(newPanoName);
+                    streetview[i].setZoom(3);
+                    b_updateMesh=true;
+                } else {
+                    cout << "pano " <<  newPanoName << " is already loaded" << endl;
+                }
             }
         }
     }
@@ -314,15 +337,12 @@ void ofApp::exportPLY( ofMesh &mesh){
         
         mesh = streetview[0].getDethMesh();
         
-        
         // color the depth map from the pano texture
         // ofTexture texture = panoFbo.getTexture();
         // ofPixels pixels;
-        
         // texture.readToPixels(pixels);
         // c = pixels.getColor(x,y);
         // meshDepth.addColor(c);
-        
         
         mesh.save(saveFileResult.filePath);
     }
@@ -336,8 +356,6 @@ void ofApp::saveCacheFiles(){
     string panoId;
     
     ofSetDataPathRoot("../../../data/");
-
-    
     
     for(int i=0; i< streetview.size(); i++){
         panoId = streetview[i].getPanoId();
@@ -349,7 +367,6 @@ void ofApp::saveCacheFiles(){
         output_file.close();
         
         //obj.open(ofToDataPath(fileName),ofFile::WriteOnly);
-        
         // cacheBuffer.set((char*)streetview, sizeof(streetview));
         // cacheBuffer.set(streetview[1], sizeof(streetview[i]);
         // obj.writeFromBuffer(cacheBuffer);
